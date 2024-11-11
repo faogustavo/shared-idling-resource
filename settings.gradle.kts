@@ -30,4 +30,5 @@ dependencyResolutionManagement {
 
 include(":common")
 include(":composeTest")
+include(":espressoTest")
 include(":sample")

@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -6,55 +7,23 @@ plugins {
 }
 
 kotlin {
-    macosX64()
-    macosArm64()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-    watchosArm32()
-    watchosArm64()
-    watchosSimulatorArm64()
-    watchosDeviceArm64()
-    watchosX64()
-    tvosArm64()
-    tvosSimulatorArm64()
-    tvosX64()
-
     androidTarget {
-        publishAllLibraryVariants()
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
-
-    jvm()
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        nodejs()
-    }
-
-    js {
-        browser()
-        nodejs()
-    }
-
-    mingwX64()
-    linuxX64()
-    linuxArm64()
-
-    androidNativeArm32()
-    androidNativeArm64()
-    androidNativeX86()
-    androidNativeX64()
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(libs.atomicfu)
+        androidMain.dependencies {
+            api(project(":common"))
+            implementation(libs.espresso.idling)
         }
     }
 }
 
 android {
-    namespace = "co.touchlab.idling"
+    namespace = "co.touchlab.idling.espresso"
     compileSdk =
         libs.versions.android.compileSdk
             .get()
@@ -85,7 +54,7 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
