@@ -5,7 +5,9 @@ import co.touchlab.idling.IdlingResource
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 
-open class CountingIdlingResource(override val name: String) : IdlingResource {
+open class CountingIdlingResource(
+    override val name: String,
+) : IdlingResource {
     companion object {
         val Shared = CountingIdlingResource("SharedCountingIdlingResource")
     }

@@ -1,11 +1,21 @@
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.touchlab.idling.IdlingCallback
@@ -30,7 +40,7 @@ fun MyScreen() {
         Column {
             Text(
                 state.toString(),
-                modifier = Modifier.testTag("ValuePresenter")
+                modifier = Modifier.testTag("ValuePresenter"),
             )
 
             Button(
@@ -54,14 +64,16 @@ class MyViewModel : ViewModel() {
     val myState = MutableStateFlow(0)
 
     fun increment() = update { it + 1 }
+
     fun decrement() = update { it - 1 }
 
     private fun update(transform: (Int) -> Int) {
-        viewModelScope.launch {
-            MyCustomIdlingResource.lock()
-            delay(500)
-            myState.update(transform)
-        }.invokeOnCompletion { MyCustomIdlingResource.release() }
+        viewModelScope
+            .launch {
+                MyCustomIdlingResource.lock()
+                delay(500)
+                myState.update(transform)
+            }.invokeOnCompletion { MyCustomIdlingResource.release() }
     }
 }
 
