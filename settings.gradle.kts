@@ -30,4 +30,4 @@ dependencyResolutionManagement {
 
 include(":common")
 include(":composeTest")
-include(":composeApp")
+include(":sample")
