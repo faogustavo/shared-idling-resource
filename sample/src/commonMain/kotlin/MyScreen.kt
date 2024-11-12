@@ -22,6 +22,7 @@ import co.touchlab.idling.IdlingCallback
 import co.touchlab.idling.IdlingResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -61,7 +62,8 @@ fun MyScreen() {
 }
 
 class MyViewModel : ViewModel() {
-    val myState = MutableStateFlow(0)
+    private val _myState = MutableStateFlow(0)
+    val myState = _myState.asStateFlow()
 
     fun increment() = update { it + 1 }
 
@@ -72,7 +74,7 @@ class MyViewModel : ViewModel() {
             .launch {
                 MyCustomIdlingResource.lock()
                 delay(500)
-                myState.update(transform)
+                _myState.update(transform)
             }.invokeOnCompletion { MyCustomIdlingResource.release() }
     }
 }
