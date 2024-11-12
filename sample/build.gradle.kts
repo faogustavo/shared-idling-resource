@@ -1,11 +1,10 @@
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-import java.time.Duration
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -18,9 +17,12 @@ kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "composeApp"
+        binaries.executable()
         browser {
             testTask {
-                timeout.set(Duration.ofSeconds(15))
+                useKarma {
+                    useChromeHeadless()
+                }
             }
             commonWebpackConfig {
                 outputFileName = "composeApp.js"
@@ -34,23 +36,13 @@ kotlin {
                     }
             }
         }
-        binaries.executable()
     }
 
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
-        }
-
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        instrumentedTestVariant {
-            sourceSetTree.set(KotlinSourceSetTree.test)
-
-            dependencies {
-                implementation("androidx.compose.ui:ui-test-junit4-android:1.5.4")
-                debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.4")
-            }
         }
     }
 
@@ -99,6 +91,12 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+        }
+
+        androidInstrumentedTest.dependencies {
+            implementation(libs.androidx.espresso.core)
+            implementation(libs.androidx.espresso.idling)
+            implementation(projects.espressoTest)
         }
 
         desktopMain.dependencies {
@@ -154,9 +152,22 @@ android {
     buildFeatures {
         compose = true
     }
-    dependencies {
-        debugImplementation(compose.uiTooling)
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+            all { it.exclude("**MyCommonTest**") }
+        }
     }
+}
+
+dependencies {
+    debugImplementation(compose.uiTooling)
+    debugImplementation(libs.androidx.compose.testManifest)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.compose.testJunit)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.runner)
 }
 
 compose.desktop {
