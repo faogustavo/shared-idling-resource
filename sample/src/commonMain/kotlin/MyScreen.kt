@@ -20,6 +20,9 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.touchlab.idling.IdlingCallback
 import co.touchlab.idling.IdlingResource
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.getAndUpdate
+import kotlinx.atomicfu.update
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -88,23 +91,23 @@ class MyViewModelStoreOwner : ViewModelStoreOwner {
 }
 
 object MyCustomIdlingResource : IdlingResource {
-    private var isLocked = false
-    private var callback: IdlingCallback? = null
+    private var isLocked = atomic(false)
+    private var callback = atomic<IdlingCallback?>(null)
 
     override val name: String = "Custom Lock Resource"
-    override val isIdleNow: Boolean get() = !isLocked
-    override val idleMessageIfBusy: String? get() = "Resource is locked".takeIf { isLocked }
+    override val isIdleNow: Boolean get() = isLocked.value.not()
+    override val idleMessageIfBusy: String? get() = "Resource is locked".takeIf { isIdleNow }
 
     fun lock() {
-        isLocked = true
+        isLocked.update { true }
     }
 
     fun release() {
-        isLocked = false
-        callback?.onTransitionToIdle()
+        isLocked.update { false }
+        callback.getAndUpdate { null }?.onTransitionToIdle()
     }
 
     override fun registerIdleCallback(callback: IdlingCallback) {
-        this.callback = callback
+        this.callback.update { callback }
     }
 }

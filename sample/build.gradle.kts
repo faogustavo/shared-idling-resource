@@ -76,6 +76,8 @@ kotlin {
             implementation(libs.viewModel.multiplatform)
             implementation(libs.viewModel.compose)
 
+            implementation(libs.atomicfu)
+
             implementation(projects.common)
         }
 

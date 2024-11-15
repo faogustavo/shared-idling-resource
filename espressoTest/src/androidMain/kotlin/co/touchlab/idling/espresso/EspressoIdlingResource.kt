@@ -1,6 +1,7 @@
 package co.touchlab.idling.espresso
 
 import androidx.test.espresso.IdlingResource
+import androidx.test.espresso.IdlingResource.ResourceCallback
 import co.touchlab.idling.IdlingResource as KMPIdlingResource
 
 class EspressoIdlingResource(
@@ -10,7 +11,7 @@ class EspressoIdlingResource(
 
     override fun isIdleNow(): Boolean = delegate.isIdleNow
 
-    override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback) {
+    override fun registerIdleTransitionCallback(callback: ResourceCallback) {
         delegate.registerIdleCallback { callback.onTransitionToIdle() }
     }
 }
