@@ -18,6 +18,7 @@ kotlin {
         androidMain.dependencies {
             implementation(projects.common)
             implementation(libs.androidx.espresso.idling)
+            implementation(libs.atomicfu)
         }
     }
 }

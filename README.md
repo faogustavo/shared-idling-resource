@@ -9,11 +9,18 @@ both Android and Compose Multiplatform.
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            // To implement Idling Resources in common code
             implementation("co.touchlab.idling:common:${Version}")
         }
 
         commonTest.dependencies {
+            // For Compose Multiplatform Support
             implementation("co.touchlab.idling:composeTest:${Version}")
+        }
+
+        androidInstrumentedTest.dependencies {
+            // For Android Espresso Support
+            implementation("co.touchlab.idling:espressoTest:${Version}")
         }
     }
 }
@@ -99,15 +106,15 @@ Each of them have a different usage, but they are very similar:
 
 ### Android Espresso Test
 
-To use the common Idling Resource in the Android Tests, you must wrap with an `AndroidIdlingResource`.
+To use the common Idling Resource in the Android Tests, you must wrap with an `EspressoIdlingResource`.
 
 The example `MyCustomIdlingResource` above would be wrapped like the following:
 
 ```kotlin
 import androidx.test.espresso.IdlingResource
-import co.touchlab.idling.AndroidIdlingResource
+import co.touchlab.idling.EspressoIdlingResource
 
-object MyCustomAndroidIdlingResource : IdlingResource by AndroidIdlingResource(MyCustomIdlingResource)
+object MyCustomEspressoIdlingResource : IdlingResource by EspressoIdlingResource(MyCustomIdlingResource)
 ```
 
 Then you can register it as any native Idle Resource:
@@ -115,13 +122,13 @@ Then you can register it as any native Idle Resource:
 ```kotlin
 fun register() {
     IdlingRegistry.getInstance().register(
-        MyCustomAndroidIdlingResource,
+        MyCustomEspressoIdlingResource,
     )
 }
 
 fun unregister() {
     IdlingRegistry.getInstance().unregister(
-        MyCustomAndroidIdlingResource
+        MyCustomEspressoIdlingResource
     )
 }
 ```

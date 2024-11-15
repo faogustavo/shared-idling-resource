@@ -94,9 +94,10 @@ kotlin {
         }
 
         androidInstrumentedTest.dependencies {
+            implementation(projects.espressoTest)
             implementation(libs.androidx.espresso.core)
             implementation(libs.androidx.espresso.idling)
-            implementation(projects.espressoTest)
+            implementation(libs.androidx.test.core.ktx)
         }
 
         desktopMain.dependencies {
